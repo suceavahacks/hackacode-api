@@ -1,12 +1,44 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, ConflictException } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { SupabaseService } from '../supabase/supabase.service';
 
 @Injectable()
 export class UsersService {
   constructor(private readonly supabaseService: SupabaseService) { }
-  create(createUserDto: CreateUserDto) {
-    return 'This action adds a new user';
+  
+  async create(createUserDto: CreateUserDto) {
+    const { id, bio } = createUserDto;
+    
+    // Check if user already exists in public.users
+    const { data: existingUser, error: checkError } = await this.supabaseService.getClient()
+      .from('users')
+      .select('id')
+      .eq('id', id)
+      .single();
+      
+    if (checkError && checkError.code !== 'PGRST116') {
+      throw new Error(`Error checking for existing user: ${checkError.message}`);
+    }
+    
+    if (existingUser) {
+      return existingUser; // User already exists, return it
+    }
+    
+    // Insert user into public.users table
+    const { data, error } = await this.supabaseService.getClient()
+      .from('users')
+      .insert({
+        id,
+        bio: bio || null
+      })
+      .select()
+      .single();
+    
+    if (error) {
+      throw new Error(`Error creating user: ${error.message}`);
+    }
+    
+    return data;
   }
 
   async findAll() {
@@ -28,5 +60,4 @@ export class UsersService {
     }
     return data;
   }
-
 }

@@ -1,12 +1,14 @@
 import { Injectable, UnauthorizedException, BadRequestException } from '@nestjs/common';
 import { SupabaseService } from '../supabase/supabase.service';
 import { ConfigService } from '@nestjs/config';
+import { UsersService } from '../users/users.service';
 
 @Injectable()
 export class AuthService {
   constructor(
     private readonly supabaseService: SupabaseService,
-    private readonly configService: ConfigService
+    private readonly configService: ConfigService,
+    private readonly usersService: UsersService
   ) { }
 
   async signIn(email: string, password: string) {
@@ -36,6 +38,20 @@ export class AuthService {
     if (error) {
       throw new UnauthorizedException(error.message);
     }
+
+    // Create user in public.users table if signup successful
+    if (data.user) {
+      try {
+        await this.usersService.create({
+          id: data.user.id,
+          bio: undefined
+        });
+      } catch (err) {
+        console.error('Error creating user in public.users table:', err);
+        // Continue with auth signup even if public.users creation fails
+      }
+    }
+
     return {
       user: data.user,
       session: data.session ? {
@@ -132,6 +148,19 @@ export class AuthService {
       }
       
       const userResponse = await this.supabaseService.getClient().auth.getUser();
+      
+      // Create user in public.users table if not exists
+      if (userResponse.data.user) {
+        try {
+          await this.usersService.create({
+            id: userResponse.data.user.id,
+            bio: undefined
+          });
+        } catch (err) {
+          console.error('Error creating user in public.users table for Google auth:', err);
+          // Continue with auth flow even if public.users creation fails
+        }
+      }
 
       return {
         user: userResponse.data.user,

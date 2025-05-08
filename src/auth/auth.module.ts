@@ -6,11 +6,13 @@ import { PassportModule } from '@nestjs/passport';
 import { JwtStrategy } from './jwt.strategy';
 import { SupabaseAuthMiddleware } from './auth.middleware';
 import { AuthGuard } from './auth.guard';
+import { UsersModule } from '../users/users.module';
 
 @Module({
   imports: [
     SupabaseModule,
     PassportModule.register({ defaultStrategy: 'jwt' }),
+    UsersModule,
   ],
   controllers: [AuthController],
   providers: [AuthService, JwtStrategy, AuthGuard],
