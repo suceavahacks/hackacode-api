@@ -9,15 +9,7 @@ import { ApiSecure } from '../auth/decorators/api-secure.decorator';
 @Controller('problems')
 export class ProblemsController {
   constructor(private readonly problemsService: ProblemsService) {}
-
-  @Post()
-  @ApiSecure()
-  @ApiOperation({ summary: 'Create a new problem' })
-  @ApiResponse({ status: 201, description: 'Problem created successfully' })
-  create(@Body() createProblemDto: CreateProblemDto) {
-    return this.problemsService.create(createProblemDto);
-  }
-
+  
   @Get()
   @ApiSecure()
   @ApiOperation({ summary: 'Get all problems' })
@@ -35,21 +27,4 @@ export class ProblemsController {
     return this.problemsService.findOne(+id);
   }
 
-  @Patch(':id')
-  @ApiSecure()
-  @ApiOperation({ summary: 'Update a problem' })
-  @ApiResponse({ status: 200, description: 'Problem updated successfully' })
-  @ApiResponse({ status: 404, description: 'Problem not found' })
-  update(@Param('id') id: string, @Body() updateProblemDto: UpdateProblemDto) {
-    return this.problemsService.update(+id, updateProblemDto);
-  }
-
-  @Delete(':id')
-  @ApiSecure()
-  @ApiOperation({ summary: 'Delete a problem' })
-  @ApiResponse({ status: 200, description: 'Problem deleted successfully' })
-  @ApiResponse({ status: 404, description: 'Problem not found' })
-  remove(@Param('id') id: string) {
-    return this.problemsService.remove(+id);
-  }
 }

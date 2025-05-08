@@ -1,26 +1,27 @@
 import { Injectable } from '@nestjs/common';
 import { CreateProblemDto } from './dto/create-problem.dto';
 import { UpdateProblemDto } from './dto/update-problem.dto';
-
+import { SupabaseService } from '../supabase/supabase.service';
+/*
+TODO : add testcases table , so each problem can have multiple testcases but they'll be separate from the problem statement.
+*/
 @Injectable()
 export class ProblemsService {
-  create(createProblemDto: CreateProblemDto) {
-    return 'This action adds a new problem';
+  constructor(private readonly supabaseService: SupabaseService) {}
+  async findAll() {
+    const {data,error} = await this.supabaseService.getClient().from('problems').select('*');
+    if (error) {
+      throw new Error(error.message);
+    }
+    return data;
   }
 
-  findAll() {
-    return `This action returns all problems`;
+  async findOne(id: number) {
+    const {data,error} = await this.supabaseService.getClient().from('problems').select('*').eq('id', id);
+    if (error) {
+      throw new Error(error.message);
+    }
+    return data;
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} problem`;
-  }
-
-  update(id: number, updateProblemDto: UpdateProblemDto) {
-    return `This action updates a #${id} problem`;
-  }
-
-  remove(id: number) {
-    return `This action removes a #${id} problem`;
-  }
 }
