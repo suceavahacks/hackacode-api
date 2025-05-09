@@ -1,4 +1,4 @@
-import { Module, MiddlewareConsumer, RequestMethod } from '@nestjs/common';
+import { Module, MiddlewareConsumer, RequestMethod, forwardRef } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { AuthController } from './auth.controller';
 import { SupabaseModule } from '../supabase/supabase.module';
@@ -12,7 +12,7 @@ import { UsersModule } from '../users/users.module';
   imports: [
     SupabaseModule,
     PassportModule.register({ defaultStrategy: 'jwt' }),
-    UsersModule,
+    forwardRef(() => UsersModule),
   ],
   controllers: [AuthController],
   providers: [AuthService, JwtStrategy, AuthGuard],
