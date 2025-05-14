@@ -118,6 +118,7 @@ export class AuthService {
           queryParams: {
             access_type: 'offline',
             response_type: 'code',
+            prompt: 'consent'
           },
         },
       });
