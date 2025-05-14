@@ -117,6 +117,7 @@ export class AuthService {
           redirectTo: `${frontendUrl}/auth/callback`,
           queryParams: {
             access_type: 'offline',
+            response_type: 'code',
           },
         },
       });
